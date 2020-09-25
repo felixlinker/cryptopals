@@ -23,11 +23,8 @@ modExp base exp p =
                 in  modExp' acc' base' exp' p
     in modExp' 1 (base % p) exp p
 
-dh :: Integer -> Integer -> IO (Integer, Integer, Integer)
-dh generator p =
-    do
-        a <- genI p
-        b <- genI p
-        let pkA = (generator^a) % p
-        let pkB = (generator^b) % p
-        return (pkA, pkB, pkB^a % p)
+dh :: (B.Bits a, Integral a) => a -> a -> a -> a -> (a, a, a)
+dh a b generator p =
+    let pkA = (generator^a) % p
+        pkB = (generator^b) % p
+    in  (pkA, pkB, pkB^a % p)
