@@ -1,14 +1,9 @@
 module Lib
-    ( genI
-    , modExp
+    ( modExp
     , dh
     ) where
 
-import qualified System.Random as R
 import qualified Data.Bits as B
-
-genI :: Integer -> IO Integer
-genI upperBound = R.randomRIO (0 :: Integer, upperBound)
 
 (%) :: (B.Bits a, Integral a) => a -> a -> a
 (%) = mod
