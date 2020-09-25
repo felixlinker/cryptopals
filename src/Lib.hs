@@ -1,5 +1,7 @@
 module Lib
     ( genI
+    , modExp
+    , dh
     ) where
 
 import qualified System.Random as R
