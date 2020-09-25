@@ -27,6 +27,6 @@ modExp base exp p =
 
 dh :: (B.Bits a, Integral a) => a -> a -> a -> a -> (a, a, a)
 dh a b generator p =
-    let pkA = (generator^a) % p
-        pkB = (generator^b) % p
-    in  (pkA, pkB, pkB^a % p)
+    let pkA = modExp generator a p
+        pkB = modExp generator b p
+    in  (pkA, pkB, modExp pkB a p)
