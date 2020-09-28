@@ -22,6 +22,8 @@ dependencies:
 - base >= 4.7 && < 5
 - random >= 1.1
 - QuickCheck >= 2.13
+- cryptohash >= 0.11
+- cryptonite >= 0.26
 
 library:
   source-dirs: src
