@@ -1,9 +1,13 @@
 module Lib
     ( modExp
     , dh
+    , xor
     ) where
 
 import qualified Data.Bits as B
+
+xor :: B.Bits a => [a] -> [a] -> [a]
+xor = zipWith B.xor
 
 (%) :: (B.Bits a, Integral a) => a -> a -> a
 (%) = mod
