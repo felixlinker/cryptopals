@@ -1,5 +1,6 @@
 module GuessXOR
-    ( bestFor ) where
+    ( bestFor
+    , Scored (..) ) where
 
 import Data.Char (isPrint, toUpper)
 import Data.Bits (xor)
@@ -39,7 +40,7 @@ optCost = Map.foldl (+) 0 . Merge.merge notInEither notInEither mergeInBoth optM
         mergeInBoth = Merge.zipWithMatched $ const (-)
 
 -- | Calculate the 'optCost' for the input string XORed with the input byte.
-try :: BS.ByteString -> Word8 -> Int
+try :: BS.ByteString -> Word8 -> Scored
 try bs w =
     let plain = C8.map toUpper $ BS.map (xor w) bs
         -- Map of (char, quantity)
@@ -48,23 +49,25 @@ try bs w =
         ranks = Map.fromList $ zipWith (\i t -> (fst t, i)) [0..]
                              $ sortOn snd
                              $ Map.toList charMap
-    in optCost ranks
+    in Scored w $ optCost ranks
     where
         inc :: Integral a => Maybe a -> Maybe a
         inc = Just . maybe 1 succ
 
-type Scored = (Word8, Int)
+data Scored = Scored Word8 Int
+instance Eq Scored where
+    (==) (Scored _ scr) (Scored _ scr') = scr == scr'
+
+instance Ord Scored where
+    compare (Scored _ scr) (Scored _ scr') = compare scr scr'
 
 -- | Guess a likely byte the input might have been XOR-obfuscated with.
-bestFor :: BS.ByteString -> Word8
+bestFor :: BS.ByteString -> Scored
 bestFor bs =
-    let initialScored = ((,) <*> try bs) 0x00
+    let initialScored = try bs 0x00
     in tryRec bs [0x01..0xFF] initialScored
     where
-        tryRec :: BS.ByteString -> [Word8] -> Scored -> Word8
-        tryRec _ [] (w, _) = w
-        tryRec _ _ (w, 0) = w
-        tryRec bs (h:t) (w, score) =
-            let score' = try bs h
-                scored' = (if score' < score then h else w, min score' score)
-            in tryRec bs t scored'
+        tryRec :: BS.ByteString -> [Word8] -> Scored -> Scored
+        tryRec _ [] scrd = scrd
+        tryRec _ _ (Scored w 0) = Scored w 0
+        tryRec bs (h:t) score = tryRec bs t (min score $ try bs h)
